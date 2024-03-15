@@ -36,6 +36,7 @@ jobs:
           registry_password: ${{ secrets.GITHUB_TOKEN }}
           publish: 'false'
           build_context: ${{ matrix.minor }}/${{ matrix.os }}
+          buildfile: ${{ matrix.minor }}/${{ matrix.os }}/Dockerfile
           tags: 'ci/ruby:${{ github.sha }}'
 
       - name: Run Trivy vulnerability scanner
