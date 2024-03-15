@@ -1,0 +1,59 @@
+---
+name: QA🚦
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - main
+
+jobs:
+  setup-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Source checkout
+        uses: actions/checkout@v4
+
+      - id: set-matrix
+        run: echo "matrix=$(jq -c . build_versions.json)" >> $GITHUB_OUTPUT
+
+  build_test_container:
+    name: 'Build test container'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    needs: setup-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+    steps:
+      - name: Test Ruby Container ${{ matrix.full }}-${{ matrix.os }}
+        uses: voxpupuli/gha-build-and-publish-a-container@v2
+        with:
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          publish: 'false'
+          build_context: ${{ matrix.minor }}/${{ matrix.os }}
+          tags: 'ci/ruby:${{ github.sha }}'
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ci/ruby:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  tests:
+    needs:
+      - build_test_container
+    runs-on: ubuntu-latest
+    name: Test suite
+    steps:
+      - run: echo Test suite completed

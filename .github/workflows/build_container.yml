@@ -1,0 +1,47 @@
+---
+name: Build and publish a 🛢️ container
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  setup-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Source checkout
+        uses: actions/checkout@v4
+
+      - id: set-matrix
+        run: echo "matrix=$(jq -c . build_versions.json)" >> $GITHUB_OUTPUT
+
+  build-and-push-container:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    needs: setup-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+    steps:
+      - name: Build Ruby Container ${{ matrix.full }}-${{ matrix.os }}
+        uses: voxpupuli/gha-build-and-publish-a-container@v2
+        with:
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          build_arch: linux/amd64,linux/arm64
+          build_context: ${{ matrix.minor }}/${{ matrix.os }}
+          tags: |
+            ghcr.io/betadots/ruby:${{ matrix.major }}
+            ghcr.io/betadots/ruby:${{ matrix.minor }}
+            ghcr.io/betadots/ruby:${{ matrix.full }}
+            ghcr.io/betadots/ruby:${{ matrix.major }}-${{ matrix.os }}
+            ghcr.io/betadots/ruby:${{ matrix.minor }}-${{ matrix.os }}
+            ghcr.io/betadots/ruby:${{ matrix.full }}-${{ matrix.os }}
+            ghcr.io/betadots/ruby:${{ matrix.os }}
+            ghcr.io/betadots/ruby:latest
