@@ -1,6 +1,12 @@
 {
   "include": [
     {
+      "major": "2",
+      "minor": "2.7",
+      "full": "2.7.8",
+      "os": "focal"
+    },
+    {
       "major": "3",
       "minor": "3.3",
       "full": "3.3.0",
