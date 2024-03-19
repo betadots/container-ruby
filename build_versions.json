@@ -8,6 +8,12 @@
     },
     {
       "major": "3",
+      "minor": "3.2",
+      "full": "3.2.3",
+      "os": "jammy"
+    },
+    {
+      "major": "3",
       "minor": "3.3",
       "full": "3.3.0",
       "os": "jammy"
