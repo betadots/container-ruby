@@ -1,22 +1,16 @@
 {
   "include": [
     {
-      "major": "2",
-      "minor": "2.7",
-      "full": "2.7.8",
-      "os": "focal"
-    },
-    {
       "major": "3",
       "minor": "3.2",
-      "full": "3.2.3",
-      "os": "jammy"
+      "full": "3.2.11",
+      "os": "alpine"
     },
     {
-      "major": "3",
-      "minor": "3.3",
-      "full": "3.3.0",
-      "os": "jammy"
+      "major": "4",
+      "minor": "4.0",
+      "full": "4.0.5",
+      "os": "alpine"
     }
   ]
 }
